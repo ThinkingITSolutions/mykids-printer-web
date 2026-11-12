@@ -26,36 +26,95 @@ export function Brand() {
   );
 }
 
+const Icon = ({ d }: { d: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d={d} />
+  </svg>
+);
+const ICONS = {
+  painel: 'M3 12l9-8 9 8M5 10v10h5v-6h4v6h5V10',
+  impressoras: 'M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z',
+  conta: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0',
+  usuarios: 'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM1 21a8 8 0 0 1 16 0M17 3.5a4 4 0 0 1 0 7.5M23 21a8 8 0 0 0-5-7.4',
+  logs: 'M4 4h16v16H4zM8 9h8M8 13h8M8 17h5',
+};
+
+const ADMIN_LINKS = [
+  { to: '/', label: 'Painel', short: 'Painel', icon: ICONS.painel, end: true },
+  { to: '/impressoras', label: 'Impressoras', short: 'Impressoras', icon: ICONS.impressoras },
+  { to: '/gileade', label: 'Conta MyKids', short: 'MyKids', icon: ICONS.conta },
+  { to: '/usuarios', label: 'Usuários', short: 'Usuários', icon: ICONS.usuarios },
+  { to: '/logs', label: 'Logs', short: 'Logs', icon: ICONS.logs },
+];
+
 function Shell({ children }: { children: ReactNode }) {
   const { user, refresh } = useSession();
+  const [menu, setMenu] = useState(false);
+  const admin = user?.role === 'admin';
+  const roleLabel = admin ? 'Administrador' : 'Operador';
+  const initials = (user?.name ?? '?')
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]!.toUpperCase())
+    .join('');
   const logout = async () => {
     await api('/api/logout', { method: 'POST' });
     await refresh();
   };
+  useEffect(() => {
+    if (!menu) return;
+    const close = () => setMenu(false);
+    window.addEventListener('click', close);
+    return () => window.removeEventListener('click', close);
+  }, [menu]);
+
   return (
-    <>
+    <div className={admin ? 'with-tabbar' : ''}>
       <header className="topbar">
         <Brand />
-        <nav className="nav">
-          <NavLink to="/" end>Painel</NavLink>
-          {user?.role === 'admin' && (
-            <>
-              <NavLink to="/impressoras">Impressoras</NavLink>
-              <NavLink to="/gileade">Conta MyKids</NavLink>
-              <NavLink to="/usuarios">Usuários</NavLink>
-              <NavLink to="/logs">Logs</NavLink>
-            </>
+        {admin && (
+          <nav className="nav">
+            {ADMIN_LINKS.map((l) => (
+              <NavLink key={l.to} to={l.to} end={l.end}>
+                {l.label}
+              </NavLink>
+            ))}
+          </nav>
+        )}
+        <span className="spacer" />
+        <div className="user-menu" onClick={(e) => e.stopPropagation()}>
+          <div className="user-label">
+            {user?.name}
+            <br />
+            <small>{roleLabel}</small>
+          </div>
+          <button className="avatar" aria-label="Menu do usuário" onClick={() => setMenu((m) => !m)}>
+            {initials}
+          </button>
+          {menu && (
+            <div className="user-pop">
+              <strong>{user?.name}</strong>
+              <div className="meta">
+                {user?.username} · {roleLabel}
+              </div>
+              <button onClick={logout}>Sair</button>
+            </div>
           )}
-        </nav>
-        <div className="user">
-          <span>
-            {user?.name} · {user?.role === 'admin' ? 'Administrador' : 'Operador'}
-          </span>
-          <button onClick={logout}>Sair</button>
         </div>
       </header>
       {children}
-    </>
+      {admin && (
+        <nav className="tabbar" aria-label="Navegação">
+          {ADMIN_LINKS.map((l) => (
+            <NavLink key={l.to} to={l.to} end={l.end}>
+              <Icon d={l.icon} />
+              <span>{l.short}</span>
+            </NavLink>
+          ))}
+        </nav>
+      )}
+    </div>
   );
 }
 

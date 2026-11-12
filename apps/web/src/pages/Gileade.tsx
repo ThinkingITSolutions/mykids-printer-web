@@ -86,9 +86,8 @@ export function Gileade() {
         {msg && <div className={`alert ${msg.type}`}>{msg.text}</div>}
         {acc?.configured && (
           <div className="card stack">
-            <div className="row">
-              <h3>{acc.organizationName ?? 'Organização não selecionada'}</h3>
-              <span className="spacer" />
+            <div className="row" style={{ flexWrap: 'nowrap', alignItems: 'flex-start' }}>
+              <h3 style={{ flex: 1 }}>{acc.organizationName ?? 'Organização não selecionada'}</h3>
               <span className="pill ok">Conectada</span>
             </div>
             <div className="meta">
@@ -110,9 +109,8 @@ export function Gileade() {
                 </select>
               </div>
             )}
-            <div className="row">
+            <div className="actions">
               <button onClick={refreshTemplates}>Atualizar modelos de etiqueta</button>
-              <span className="spacer" />
               <button className="danger" onClick={remove}>
                 Remover conta
               </button>
@@ -132,14 +130,14 @@ export function Gileade() {
             <div className="fields">
               <div>
                 <label>E-mail / usuário MyKids</label>
-                <input value={form.user} onChange={(e) => setForm({ ...form, user: e.target.value })} autoComplete="off" />
+                <input type="email" inputMode="email" autoCapitalize="none" value={form.user} onChange={(e) => setForm({ ...form, user: e.target.value })} autoComplete="off" />
               </div>
               <div>
                 <label>Senha MyKids</label>
                 <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} autoComplete="new-password" />
               </div>
             </div>
-            <div className="row">
+            <div className="actions">
               <button className="primary" disabled={busy || !form.user || !form.password}>
                 {busy ? 'Conectando…' : 'Testar e salvar'}
               </button>

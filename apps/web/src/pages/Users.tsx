@@ -57,7 +57,7 @@ export function Users() {
             </div>
             <div>
               <label>Usuário</label>
-              <input value={form.username} disabled={!!editId} onChange={(e) => setForm({ ...form, username: e.target.value })} />
+              <input value={form.username} disabled={!!editId} autoCapitalize="none" autoCorrect="off" onChange={(e) => setForm({ ...form, username: e.target.value })} />
             </div>
             <div>
               <label>{editId ? 'Nova senha (opcional)' : 'Senha'}</label>
@@ -72,7 +72,7 @@ export function Users() {
             </div>
           </div>
           {msg && <div className={`alert ${msg.type}`}>{msg.text}</div>}
-          <div className="row">
+          <div className="actions">
             <button className="primary" onClick={save} disabled={!form.name || (!editId && (!form.username || !form.password))}>
               Salvar
             </button>
@@ -88,7 +88,7 @@ export function Users() {
             )}
           </div>
         </div>
-        <table>
+        <table className="responsive">
           <thead>
             <tr>
               <th>Nome</th>
@@ -101,13 +101,15 @@ export function Users() {
           <tbody>
             {rows.map((r) => (
               <tr key={r.id}>
-                <td>{r.name}</td>
-                <td>{r.username}</td>
-                <td>
+                <td data-label="Nome">
+                  <strong>{r.name}</strong>
+                </td>
+                <td data-label="Usuário">{r.username}</td>
+                <td data-label="Perfil">
                   <span className={`pill ${r.role === 'admin' ? 'info' : 'ok'}`}>{r.role === 'admin' ? 'Administrador' : 'Operador'}</span>
                 </td>
-                <td>{fmtDate(r.created_at)}</td>
-                <td style={{ textAlign: 'right' }}>
+                <td data-label="Criado em">{fmtDate(r.created_at)}</td>
+                <td className="actions-cell">
                   <button
                     className="link"
                     onClick={() => {

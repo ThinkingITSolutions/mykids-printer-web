@@ -44,7 +44,7 @@ export function Login({ onDone }: { onDone: () => void }) {
       <form className="stack" onSubmit={submit}>
         <div>
           <label>Usuário</label>
-          <input value={username} onChange={(e) => setUsername(e.target.value)} autoFocus autoComplete="username" />
+          <input value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" autoCapitalize="none" autoCorrect="off" />
         </div>
         <div>
           <label>Senha</label>
@@ -82,7 +82,7 @@ export function Setup({ onDone }: { onDone: () => void }) {
         </div>
         <div>
           <label>Usuário</label>
-          <input value={form.username} onChange={set('username')} autoComplete="username" />
+          <input value={form.username} onChange={set('username')} autoComplete="username" autoCapitalize="none" autoCorrect="off" />
         </div>
         <div>
           <label>Senha</label>

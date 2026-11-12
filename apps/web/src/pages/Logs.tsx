@@ -38,6 +38,10 @@ const TABS: { id: Tab; label: string; hint: string }[] = [
 
 const LEVEL_PILL = { info: ['info', 'Info'], warn: ['warn', 'Atenção'], error: ['bad', 'Erro'] } as const;
 
+const fmtRange = (a: string, b: string) => {
+  const f = (d: string) => (d ? d.split('-').reverse().slice(0, 2).join('/') : '…');
+  return `${f(a)} a ${f(b)}`;
+};
 const today = () => new Date().toLocaleDateString('sv-SE'); // AAAA-MM-DD local
 const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000).toLocaleDateString('sv-SE');
 
@@ -47,6 +51,7 @@ export function Logs() {
   const [jobs, setJobs] = useState<{ rows: Job[]; totals: Totals }>();
   const [logs, setLogs] = useState<LogRow[]>([]);
   const [live, setLive] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
 
   const params = useCallback(() => {
     const p = new URLSearchParams();
@@ -95,7 +100,11 @@ export function Logs() {
           ))}
         </div>
 
-        <div className="card filters">
+        <button className="filters-toggle" onClick={() => setShowFilters((v) => !v)}>
+          <span>Filtros · {fmtRange(filters.from, filters.to)}</span>
+          <span>{showFilters ? '▲' : '▼'}</span>
+        </button>
+        <div className={`card filters ${showFilters ? '' : 'collapsed'}`}>
           <div>
             <label>De</label>
             <input type="date" value={filters.from} onChange={set('from')} />
@@ -134,15 +143,15 @@ export function Logs() {
               </select>
             </div>
           )}
-          <div style={{ flex: 2 }}>
+          <div className="full">
             <label>Buscar</label>
             <input value={filters.q} onChange={set('q')} placeholder={tab === 'impressao' ? 'código, impressora ou erro' : 'texto ou usuário'} />
           </div>
           <div className="filter-actions">
             <label className="check">
-              <input type="checkbox" checked={live} onChange={(e) => setLive(e.target.checked)} /> Ao vivo
+              <input type="checkbox" checked={live} onChange={(e) => setLive(e.target.checked)} /> Atualizar ao vivo
             </label>
-            <button onClick={exportCsv}>⭳ CSV</button>
+            <button onClick={exportCsv}>⭳ Exportar CSV</button>
           </div>
         </div>
 
@@ -168,7 +177,7 @@ export function Logs() {
         )}
 
         {tab === 'impressao' ? (
-          <table>
+          <table className="responsive">
             <thead>
               <tr>
                 <th>Quando</th>
@@ -183,29 +192,34 @@ export function Logs() {
             <tbody>
               {jobs?.rows.map((j) => (
                 <tr key={j.id}>
-                  <td>{fmtDate(j.ts)}</td>
-                  <td>
-                    {j.printer_name ?? '—'}
-                    <div className="meta">MyKids #{j.mykids_id}</div>
+                  <td data-label="Quando">{fmtDate(j.ts)}</td>
+                  <td data-label="Impressora">
+                    <div>
+                      {j.printer_name ?? '—'}
+                      <div className="meta">MyKids #{j.mykids_id}</div>
+                    </div>
                   </td>
-                  <td>{j.codigo}</td>
-                  <td>{j.labels ?? '—'}</td>
-                  <td>{j.duration_ms != null ? `${(j.duration_ms / 1000).toFixed(1)} s` : '—'}</td>
-                  <td>{j.source === 'teste' ? 'Teste' : j.source === 'checkin' ? 'Check-in' : '—'}</td>
-                  <td>{j.status === 'ok' ? <span className="pill ok">Impresso</span> : <span className="pill bad" title={j.detail}>Erro</span>}
-                    {j.status === 'erro' && <div className="meta">{j.detail}</div>}
+                  <td data-label="Código(s)">{j.codigo}</td>
+                  <td data-label="Etiquetas">{j.labels ?? '—'}</td>
+                  <td data-label="Tempo">{j.duration_ms != null ? `${(j.duration_ms / 1000).toFixed(1)} s` : '—'}</td>
+                  <td data-label="Origem">{j.source === 'teste' ? 'Teste' : j.source === 'checkin' ? 'Check-in' : '—'}</td>
+                  <td data-label="Resultado">
+                    <div>
+                      {j.status === 'ok' ? <span className="pill ok">Impresso</span> : <span className="pill bad">Erro</span>}
+                      {j.status === 'erro' && <div className="meta">{j.detail}</div>}
+                    </div>
                   </td>
                 </tr>
               ))}
               {jobs && jobs.rows.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="meta">Nenhuma impressão no período.</td>
+                  <td colSpan={7} className="empty">Nenhuma impressão no período.</td>
                 </tr>
               )}
             </tbody>
           </table>
         ) : (
-          <table>
+          <table className="responsive feed">
             <thead>
               <tr>
                 <th style={{ width: 160 }}>Quando</th>
@@ -217,17 +231,19 @@ export function Logs() {
             <tbody>
               {logs.map((r) => (
                 <tr key={r.id}>
-                  <td>{fmtDate(r.ts)}</td>
-                  <td>
+                  <td data-label="Quando">{fmtDate(r.ts)}</td>
+                  <td data-label="Nível">
                     <span className={`pill ${LEVEL_PILL[r.level][0]}`}>{LEVEL_PILL[r.level][1]}</span>
                   </td>
-                  {tab === 'auditoria' && <td>{r.actor ?? '—'}</td>}
-                  <td>{r.msg}</td>
+                  {tab === 'auditoria' && <td data-label="Usuário">{r.actor ?? '—'}</td>}
+                  <td data-label="Evento" className="event">
+                    {r.msg}
+                  </td>
                 </tr>
               ))}
               {logs.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="meta">Nenhum evento no período.</td>
+                  <td colSpan={4} className="empty">Nenhum evento no período.</td>
                 </tr>
               )}
             </tbody>

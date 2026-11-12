@@ -36,3 +36,10 @@ tabela `jobs` com impressora, códigos, nº de etiquetas, tempo e origem (check-
 Auditoria registra login (inclusive recusado, com IP), logout, reconectar, conta MyKids, impressoras, usuários, exportações.
 Tela de Logs com abas, filtros por período/nível/resultado/origem, busca, indicadores e exportação CSV (`;`, UTF-8 com BOM, abre no Excel).
 Retenção: 90 dias e no máximo 50 mil linhas por tabela. Nunca gravar nome de criança, senha ou token.
+
+## ADR-009 · Mobile first — 2026-11-12
+Requisito "extremamente importante": o painel é usado principalmente no celular (operadores no check-in).
+CSS reescrito com base no celular (≥ 320px) e ajustes progressivos em 640px (tablet) e 960px (desktop).
+Celular: cabeçalho compacto + menu no avatar, barra de abas inferior com ícones (admin), botões ≥ 48px,
+inputs 16px (sem zoom no iOS), tabelas viram cartões/feeds, formulário de impressora em tela cheia com ações fixas
+no rodapé, filtros recolhíveis, áreas seguras (notch). PWA instalável (manifest, ícones INCC, tema preto).

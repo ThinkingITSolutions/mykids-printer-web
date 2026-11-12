@@ -63,12 +63,11 @@ export function QrScanner({ onResult, onClose }: { onResult: (text: string) => v
     <div className="card stack">
       <video ref={video} className="scanner" muted playsInline />
       {error && <div className="alert error">{error}</div>}
-      <div className="row">
+      <div className="actions">
         <label className="btn" style={{ margin: 0 }}>
           Enviar foto do QR code
           <input type="file" accept="image/*" capture="environment" hidden onChange={(e) => fromFile(e.target.files?.[0])} />
         </label>
-        <span className="spacer" />
         <button type="button" onClick={onClose}>
           Fechar
         </button>

@@ -13,6 +13,7 @@ interface Status {
 }
 
 const SOCKET_LABEL = { online: ['ok', 'Conectado ao MyKids'], connecting: ['warn', 'Conectando…'], offline: ['bad', 'Sem conexão com o MyKids'] } as const;
+const KIND = { 'brother-ql': 'Brother QL', ipp: 'Impressora IPP', preview: 'Pré-visualização' } as Record<string, string>;
 
 export function Dashboard() {
   const { user } = useSession();
@@ -44,25 +45,25 @@ export function Dashboard() {
 
   const [cls, label] = s ? SOCKET_LABEL[s.socket] : (['info', 'Carregando…'] as const);
   const names = new Map(s?.printers.map((p) => [p.mykidsId, p.nickname]));
+  const offline = s?.printers.filter((p) => p.enabled && !p.online).length ?? 0;
 
   return (
     <>
       <section className="hero">
         <h1>Olá, {user?.name.split(' ')[0]}!</h1>
-        <p>
-          {s?.organization?.organizationName ?? 'Conta MyKids ainda não configurada'} · as etiquetas do check-in saem
-          automaticamente nas impressoras abaixo.
-        </p>
+        <p>{s?.organization?.organizationName ?? 'Conta MyKids ainda não configurada'} · as etiquetas do check-in saem sozinhas nas impressoras abaixo.</p>
       </section>
       <main className="stack">
-        <div className="card big-status">
-          <span className={`pill ${cls}`} style={{ fontSize: 14, padding: '8px 16px' }}>
-            {label}
-          </span>
+        <div className="card status-card">
+          <span className={`pill ${cls}`}>{label}</span>
           {s?.printing && <span className="pill info">Imprimindo</span>}
-          <span className="meta">Última conexão: {fmtDate(s?.lastConnectAt)} · Último pedido: {fmtDate(s?.lastPrintAt)}</span>
-          <span className="spacer" />
-          <button className="primary huge" onClick={reconnect} disabled={busy}>
+          {offline > 0 && <span className="pill bad">{offline} impressora(s) offline</span>}
+          <div className="meta">
+            Última conexão: {fmtDate(s?.lastConnectAt)}
+            <br />
+            Último pedido: {fmtDate(s?.lastPrintAt)}
+          </div>
+          <button className="primary reconnect" onClick={reconnect} disabled={busy}>
             {busy ? 'Reconectando…' : '⟳ Reconectar'}
           </button>
         </div>
@@ -70,33 +71,26 @@ export function Dashboard() {
 
         <h2 className="section">Impressoras</h2>
         {s && s.printers.length === 0 && (
-          <div className="alert info">Nenhuma impressora configurada. {user?.role === 'admin' ? 'Vá em "Impressoras" para incluir.' : 'Peça a um administrador.'}</div>
+          <div className="alert info">Nenhuma impressora configurada. {user?.role === 'admin' ? 'Abra "Impressoras" para incluir.' : 'Peça a um administrador.'}</div>
         )}
         <div className="grid">
           {s?.printers.map((p) => (
             <div className="card" key={p.id}>
-              <div className="row">
-                <h3>{p.nickname}</h3>
-                <span className="spacer" />
-                {!p.enabled ? (
-                  <span className="pill warn">Desativada</span>
-                ) : p.online ? (
-                  <span className="pill ok">Online</span>
-                ) : (
-                  <span className="pill bad">Offline</span>
-                )}
+              <div className="row" style={{ flexWrap: 'nowrap', alignItems: 'flex-start' }}>
+                <h3 style={{ flex: 1 }}>{p.nickname}</h3>
+                {!p.enabled ? <span className="pill warn">Desativada</span> : p.online ? <span className="pill ok">Online</span> : <span className="pill bad">Offline</span>}
               </div>
               <div className="meta">
-                MyKids #{p.mykidsId} · {p.kind === 'brother-ql' ? 'Brother QL' : p.kind === 'ipp' ? 'Impressora IPP' : 'Pré-visualização'}
+                MyKids #{p.mykidsId} · {KIND[p.kind] ?? p.kind}
                 {p.host ? ` · ${p.host}` : ''}
+                {p.status ? ` · ${p.status}` : ''}
               </div>
-              {p.status && <div className="meta">Estado: {p.status}</div>}
             </div>
           ))}
         </div>
 
         <h2 className="section">Últimas impressões</h2>
-        <table>
+        <table className="responsive">
           <thead>
             <tr>
               <th>Quando</th>
@@ -108,15 +102,24 @@ export function Dashboard() {
           <tbody>
             {s?.recentJobs.map((j, i) => (
               <tr key={i}>
-                <td>{fmtDate(j.ts)}</td>
-                <td>{j.printer_name ?? names.get(j.mykids_id) ?? `#${j.mykids_id}`}</td>
-                <td>{j.codigo}</td>
-                <td>{j.status === 'ok' ? <span className="pill ok">Impresso{j.source === 'teste' ? ' (teste)' : ''}</span> : <span className="pill bad" title={j.detail}>Erro: {j.detail}</span>}</td>
+                <td data-label="Quando">{fmtDate(j.ts)}</td>
+                <td data-label="Impressora">{j.printer_name ?? names.get(j.mykids_id) ?? `#${j.mykids_id}`}</td>
+                <td data-label="Código">{j.codigo}</td>
+                <td data-label="Resultado">
+                  {j.status === 'ok' ? (
+                    <span className="pill ok">Impresso{j.source === 'teste' ? ' (teste)' : ''}</span>
+                  ) : (
+                    <div>
+                      <span className="pill bad">Erro</span>
+                      <div className="meta">{j.detail}</div>
+                    </div>
+                  )}
+                </td>
               </tr>
             ))}
             {s && s.recentJobs.length === 0 && (
               <tr>
-                <td colSpan={4} className="meta">Nada impresso ainda.</td>
+                <td colSpan={4} className="empty">Nada impresso ainda.</td>
               </tr>
             )}
           </tbody>

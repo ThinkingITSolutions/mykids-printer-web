@@ -73,11 +73,8 @@ export function Printers() {
         <p>Vincule cada impressora cadastrada no MyKids (pelo ID ou QR code) a uma impressora da rede da igreja.</p>
       </section>
       <main className="stack">
-        <div className="row">
-          <h2 className="section" style={{ margin: 0 }}>
-            Vínculos
-          </h2>
-          <span className="spacer" />
+        <div className="section-head">
+          <h2 className="section">Vínculos</h2>
           <button className="primary" onClick={() => setEditing('new')}>
             + Incluir impressora
           </button>
@@ -87,9 +84,8 @@ export function Printers() {
         <div className="grid">
           {list.map((p) => (
             <div className="card stack" key={p.id}>
-              <div className="row">
-                <h3>{p.nickname}</h3>
-                <span className="spacer" />
+              <div className="row" style={{ flexWrap: 'nowrap', alignItems: 'flex-start' }}>
+                <h3 style={{ flex: 1 }}>{p.nickname}</h3>
                 <span className={`pill ${p.enabled ? 'ok' : 'warn'}`}>{p.enabled ? 'Ativa' : 'Desativada'}</span>
               </div>
               <div className="meta">
@@ -109,12 +105,11 @@ export function Printers() {
                   />
                 </div>
               )}
-              <div className="row">
+              <div className="actions">
                 <button className="dark" onClick={() => test(p)} disabled={busyId === p.id}>
                   {busyId === p.id ? 'Imprimindo…' : 'Imprimir teste'}
                 </button>
                 <button onClick={() => setEditing(p)}>Editar</button>
-                <span className="spacer" />
                 <button className="danger" onClick={() => remove(p)}>
                   Remover
                 </button>
@@ -226,10 +221,10 @@ function PrinterModal({ catalog, initial, onClose, onSaved }: { catalog: Catalog
           <div className="fields">
             <div>
               <label>ID da impressora (MyKids)</label>
-              <input value={form.mykidsId} onChange={(e) => pickMyKids(e.target.value.replace(/\D/g, ''))} placeholder="ex.: 123456" />
+              <input inputMode="numeric" value={form.mykidsId} onChange={(e) => pickMyKids(e.target.value.replace(/\D/g, ''))} placeholder="ex.: 123456" />
               <div className="hint">{form.mykidsName || 'Digite, escolha na lista ou leia o QR code.'}</div>
             </div>
-            <div style={{ alignSelf: 'start', paddingTop: 22 }}>
+            <div className="qr-btn">
               <button type="button" onClick={() => setScanning((s) => !s)}>
                 ▣ Ler QR code
               </button>
@@ -238,7 +233,7 @@ function PrinterModal({ catalog, initial, onClose, onSaved }: { catalog: Catalog
           {scanning && <QrScanner onResult={onQr} onClose={() => setScanning(false)} />}
           {mykidsError && <div className="alert error">Não foi possível listar as impressoras do MyKids: {mykidsError}</div>}
           {mykids && (
-            <table>
+            <table className="responsive compact">
               <thead>
                 <tr>
                   <th>ID</th>
@@ -249,9 +244,13 @@ function PrinterModal({ catalog, initial, onClose, onSaved }: { catalog: Catalog
               <tbody>
                 {mykids.map((m) => (
                   <tr key={m.id} className={`selectable ${form.mykidsId === m.id ? 'selected' : ''}`} onClick={() => pickMyKids(m.id, m.nome)}>
-                    <td>{m.id}</td>
-                    <td>{m.nome}</td>
-                    <td className="meta">{m.linkedTo ?? '—'}</td>
+                    <td data-label="ID">
+                      <strong>{m.id}</strong>
+                    </td>
+                    <td data-label="Nome no MyKids">{m.nome}</td>
+                    <td data-label="Vinculada a" className="meta">
+                      {m.linkedTo ? `→ ${m.linkedTo}` : ''}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -260,14 +259,14 @@ function PrinterModal({ catalog, initial, onClose, onSaved }: { catalog: Catalog
 
           {/* 2 — impressora física */}
           <div className="step">2 · Impressora na rede</div>
-          <div className="row">
+          <div className="actions">
             <button type="button" className="primary" onClick={search} disabled={searching}>
               {searching ? 'Procurando… (até 10 s)' : '🔍 Procurar impressoras na rede'}
             </button>
             <span className="meta">Encontra as Brother QL-810W ligadas no Wi-Fi da igreja.</span>
           </div>
           {found && (
-            <table>
+            <table className="responsive">
               <thead>
                 <tr>
                   <th>Impressora</th>
@@ -279,21 +278,27 @@ function PrinterModal({ catalog, initial, onClose, onSaved }: { catalog: Catalog
               <tbody>
                 {found.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="meta">Nenhuma impressora encontrada. Confira se ela está ligada e no mesmo Wi-Fi.</td>
+                    <td colSpan={4} className="empty">Nenhuma impressora encontrada. Confira se ela está ligada e no mesmo Wi-Fi.</td>
                   </tr>
                 )}
                 {found.map((p) => (
                   <tr key={p.ip} className={`selectable ${form.target.host === p.ip ? 'selected' : ''}`} onClick={() => choosePhysical(p)}>
-                    <td>
-                      <strong>{p.model ?? p.name ?? 'Impressora'}</strong> {p.isBrotherQL && <span className="pill info">Brother QL</span>}
-                      <div className="meta">{p.name}</div>
+                    <td data-label="Impressora">
+                      <div>
+                        <strong>{p.model ?? p.name ?? 'Impressora'}</strong> {p.isBrotherQL && <span className="pill info">Brother QL</span>}
+                        <div className="meta">{p.name}</div>
+                      </div>
                     </td>
-                    <td>
-                      {p.ip}
-                      <div className="meta">{p.mac}</div>
+                    <td data-label="IP">
+                      <div>
+                        {p.ip}
+                        <div className="meta">{p.mac}</div>
+                      </div>
                     </td>
-                    <td>{p.status ?? '—'}</td>
-                    <td className="meta">{p.via.join(', ')}</td>
+                    <td data-label="Estado">{p.status ?? '—'}</td>
+                    <td data-label="Achada por" className="meta">
+                      {p.via.join(', ')}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -313,7 +318,7 @@ function PrinterModal({ catalog, initial, onClose, onSaved }: { catalog: Catalog
             {form.target.kind !== 'preview' && (
               <div>
                 <label>Endereço IP</label>
-                <input value={form.target.host ?? ''} onChange={(e) => setTarget({ host: e.target.value.trim() })} placeholder="192.168.0.50" />
+                <input inputMode="decimal" value={form.target.host ?? ''} onChange={(e) => setTarget({ host: e.target.value.trim() })} placeholder="192.168.0.50" />
                 <div className="hint">{form.target.mac ? `MAC ${form.target.mac}: se o IP mudar, o sistema reencontra sozinho.` : 'Preenchido pela busca.'}</div>
               </div>
             )}
@@ -372,14 +377,13 @@ function PrinterModal({ catalog, initial, onClose, onSaved }: { catalog: Catalog
           </label>
 
           {error && <div className="alert error">{error}</div>}
-          <div className="row">
-            <span className="spacer" />
-            <button onClick={onClose}>Cancelar</button>
-            <button className="primary" onClick={save} disabled={!form.mykidsId || !form.nickname}>
-              Salvar
-            </button>
-          </div>
         </div>
+        <footer>
+          <button onClick={onClose}>Cancelar</button>
+          <button className="primary" onClick={save} disabled={!form.mykidsId || !form.nickname}>
+            Salvar
+          </button>
+        </footer>
       </div>
     </div>
   );
