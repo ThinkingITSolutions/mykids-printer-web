@@ -42,6 +42,8 @@ Recurso **Docker Compose** apontando para este repositório (`docker-compose.yml
 - volume `/data` (banco, cache de modelos, prévias).
 O primeiro acesso pede a criação do administrador.
 
+Licença: [AGPL-3.0](LICENSE).
+
 > Projeto independente, sem vínculo com a Gileade Sistemas. "MyKids" é marca da Gileade; este repositório não
 > distribui código nem arquivos do aplicativo oficial: os modelos embutidos são extraídos do instalador público
 > no momento do build.
