@@ -67,7 +67,7 @@ também exige HTTPS.
 2. **Conta MyKids** → e-mail/senha do MyKids → organização.
 3. **Impressoras** → *Incluir* → ID da impressora do MyKids (lista, ID ou QR code) → *Procurar impressoras na rede*
    → escolher a QL-810W → modelo de etiqueta, rolo e orientação → *Salvar* → **Imprimir teste**.
-4. **Usuários** → criar os operadores (só veem o status e o botão *Reconectar*).
+4. **Usuários** → criar os operadores (veem o status, usam *Reconectar* e *Imprimir teste* em cada impressora).
 5. **Desligar o MyKids Printer antigo** dos PCs Windows que usam os mesmos IDs. Senão as etiquetas saem em dobro.
 
 ## 5. Checklist das Brother QL-810W

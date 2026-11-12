@@ -7,7 +7,7 @@ Ministério Infantil em **Brother QL-810W via Wi-Fi**, rodando no Coolify da igr
 - Recebe os pedidos do Socket.IO `printer.appmykids.com.br` como o app original (join por ID de impressora).
 - Etiquetas idênticas ao original: mesmo motor iText e os modelos personalizados da igreja (S3).
 - Busca de impressoras na rede: mDNS + porta 9100 + SNMP; reencontra a impressora se o IP mudar (MAC).
-- Painel mobile first e **instalável como app** (PWA) com usuários próprios: **admin** configura; **operador** só vê o status e clica em **Reconectar**.
+- Painel mobile first e **instalável como app** (PWA) com usuários próprios: **admin** configura; **operador** vê o status, clica em **Reconectar** e envia **impressão de teste** em cada impressora.
 
 Docs: [`docs/ANALISE.md`](docs/ANALISE.md) · [`docs/SPEC.md`](docs/SPEC.md) · [`docs/DECISIONS.md`](docs/DECISIONS.md) · [`docs/DEPLOY.md`](docs/DEPLOY.md)
 

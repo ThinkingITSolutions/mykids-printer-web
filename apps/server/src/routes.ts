@@ -141,9 +141,18 @@ export async function appRoutes(app: FastifyInstance) {
     return { ok: true };
   });
 
-  app.post('/api/printers/:id/test', admin, async (req, reply) => {
+  /**
+   * Impressão de teste — liberada também para o operador (cada impressora configurada).
+   * Intervalo mínimo de 10 s por impressora para evitar cliques repetidos.
+   */
+  const lastTest = new Map<number, number>();
+  app.post('/api/printers/:id/test', operator, async (req, reply) => {
     const p = getPrinter(idParam(req));
-    if (!p) return reply.code(404).send({ error: 'Não encontrada.' });
+    if (!p) return reply.code(404).send({ error: 'Impressora não encontrada.' });
+    const wait = (lastTest.get(p.id) ?? 0) + 10_000 - Date.now();
+    if (wait > 0) return reply.code(429).send({ error: `Aguarde ${Math.ceil(wait / 1000)} s para testar "${p.nickname}" de novo.` });
+    lastTest.set(p.id, Date.now());
+    logger.audit(req.user!.username, `Pediu impressão de teste em "${p.nickname}" (MyKids #${p.mykidsId}).`);
     try {
       await enqueue(p, [samplePrintRequest(p.mykidsId)], 'teste', req.user!.username);
       return { ok: true };

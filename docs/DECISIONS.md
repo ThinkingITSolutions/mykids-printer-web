@@ -51,3 +51,8 @@ atalhos e `display: standalone`. Convite "Instalar" via `beforeinstallprompt` (A
 no iPhone (Safari não tem prompt). Faixa de "nova versão → Atualizar" e de "sem conexão".
 Instalação exige HTTPS com certificado válido: recomendado domínio → IP da LAN com Let's Encrypt por DNS-01
 (Traefik do Coolify); alternativa `TLS_CERT_FILE`/`TLS_KEY_FILE` no próprio app.
+
+## ADR-011 · Operador pode imprimir teste — 2026-11-12
+Requisito: o usuário não admin envia uma impressão de teste para cada impressora configurada (cada ID/QR code do MyKids).
+`POST /api/printers/:id/test` passa a exigir só o papel operador; intervalo mínimo de 10 s por impressora;
+cada pedido entra na Auditoria (quem pediu) e no histórico de Impressões (origem "teste"). Configuração continua só do admin.

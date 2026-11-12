@@ -20,6 +20,22 @@ export function Dashboard() {
   const [s, setS] = useState<Status>();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ type: string; text: string }>();
+  const [testing, setTesting] = useState<number>();
+  const [testMsg, setTestMsg] = useState<Record<number, { type: string; text: string }>>({});
+
+  const test = async (id: number, nickname: string) => {
+    setTesting(id);
+    setTestMsg((m) => ({ ...m, [id]: { type: 'info', text: 'Enviando etiqueta de teste…' } }));
+    try {
+      await api(`/api/printers/${id}/test`, { method: 'POST' });
+      setTestMsg((m) => ({ ...m, [id]: { type: 'success', text: `Etiqueta de teste enviada para "${nickname}". Confira se saiu na impressora.` } }));
+      void load();
+    } catch (e) {
+      setTestMsg((m) => ({ ...m, [id]: { type: 'error', text: (e as Error).message } }));
+    } finally {
+      setTesting(undefined);
+    }
+  };
 
   const load = () => api<Status>('/api/status').then(setS).catch(() => undefined);
   useEffect(() => {
@@ -85,6 +101,16 @@ export function Dashboard() {
                 {p.host ? ` · ${p.host}` : ''}
                 {p.status ? ` · ${p.status}` : ''}
               </div>
+              <div className="actions" style={{ marginTop: 12 }}>
+                <button className="dark" onClick={() => test(p.id, p.nickname)} disabled={testing === p.id}>
+                  {testing === p.id ? 'Imprimindo…' : '🖨 Imprimir teste'}
+                </button>
+              </div>
+              {testMsg[p.id] && (
+                <div className={`alert ${testMsg[p.id].type}`} style={{ marginTop: 10 }}>
+                  {testMsg[p.id].text}
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -45,7 +45,7 @@ export function Users() {
     <>
       <section className="hero">
         <h1>Usuários do painel</h1>
-        <p>Administrador: configura conta MyKids, impressoras e usuários. Operador: vê o status e pode clicar em "Reconectar".</p>
+        <p>Administrador: configura conta MyKids, impressoras e usuários. Operador: vê o status, clica em "Reconectar" e envia impressão de teste em cada impressora.</p>
       </section>
       <main className="stack">
         <div className="card stack">
@@ -66,7 +66,7 @@ export function Users() {
             <div>
               <label>Perfil</label>
               <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value as User['role'] })}>
-                <option value="operator">Operador (só reconectar)</option>
+                <option value="operator">Operador (status, reconectar e teste)</option>
                 <option value="admin">Administrador</option>
               </select>
             </div>
