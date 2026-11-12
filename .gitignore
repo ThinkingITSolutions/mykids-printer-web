@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.log
+.env
+data/
+# material proprietário da Gileade (instalador, jar, código decompilado, modelos) — só local
+download/
+extracted/
+decompiled/
+templates-online/
+vendor-templates/
+
+# documentação com dados da igreja e achados de segurança — nunca publicar
+docs/private/

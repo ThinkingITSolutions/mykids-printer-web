@@ -1,0 +1,12 @@
+node_modules
+**/node_modules
+**/dist
+data
+download
+extracted
+decompiled
+templates-online
+vendor-templates
+apps/renderer/lib
+apps/renderer/build
+.git

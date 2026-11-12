@@ -1,0 +1,14 @@
+{
+  "name": "mykids-printer-web",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@11.3.0",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "start": "pnpm --filter server start",
+    "templates:extract": "sh scripts/extract-templates.sh"
+  }
+}

@@ -1,0 +1,18 @@
+# Coolify (Docker Compose) — instalar no servidor que está NA MESMA REDE das Brother QL-810W.
+services:
+  mykids-printer:
+    build: .
+    restart: unless-stopped
+    # Rede do host: obrigatório para o mDNS/varredura enxergar as impressoras do Wi-Fi da igreja.
+    network_mode: host
+    environment:
+      PORT: ${PORT:-8080}
+      # Chave que cifra a senha da conta MyKids no banco. Defina no Coolify e não troque depois.
+      APP_SECRET: ${APP_SECRET:?defina APP_SECRET}
+      # true quando o painel estiver atrás de HTTPS (Coolify com domínio)
+      SECURE_COOKIES: ${SECURE_COOKIES:-false}
+    volumes:
+      - mykids-printer-data:/data
+
+volumes:
+  mykids-printer-data:
