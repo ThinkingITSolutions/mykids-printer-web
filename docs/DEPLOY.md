@@ -22,11 +22,45 @@ achar as impressoras por mDNS e falar com elas na porta 9100.
    de etiqueta embutidos e as bibliotecas do iText.
 5. Volume `mykids-printer-data` (`/data`): banco SQLite, modelos em cache e prévias. **Incluir no backup do Coolify.**
 
-## 3. Acesso
-Com `network_mode: host` o proxy do Coolify (Traefik) não enxerga o container pela rede Docker. Na igreja, o simples é
-acessar pela LAN: **`http://IP-DO-SERVIDOR:8080`** (reserve o IP do servidor no roteador).
-Se quiser domínio com HTTPS, crie no Traefik uma rota dinâmica para `http://host.docker.internal:8080` e use
-`SECURE_COOKIES=true`. A câmera para ler QR code só funciona em HTTPS (ou use "Enviar foto do QR code").
+## 3. Acesso e HTTPS (necessário para instalar o app no celular)
+O painel é um **webapp instalável** (PWA). Android e iPhone **só instalam por HTTPS com certificado válido**:
+pelo IP (`http://192.168.x.y:8080`) o painel funciona, mas não aparece "Instalar". A câmera para ler QR code
+também exige HTTPS.
+
+**Recomendado: domínio próprio apontando para o IP da rede da igreja + certificado Let's Encrypt via DNS.**
+1. Reserve o IP do servidor no roteador (ex.: `192.168.0.10`).
+2. No DNS (ex.: Cloudflare), crie `mykids.seudominio.com.br` → registro **A** `192.168.0.10`, **sem proxy** (nuvem cinza).
+   O nome só resolve para dentro da rede da igreja, então nada fica exposto na internet.
+3. Como o IP é privado, o Let's Encrypt não valida por HTTP: use o **desafio DNS**.
+   - **Coolify (Traefik):** em *Servers → Proxy*, configure o resolvedor `letsencrypt` com `dnsChallenge` do provedor
+     (Cloudflare: variável `CF_DNS_API_TOKEN`) e, em *Dynamic Configuration*, uma rota para o container
+     (que roda em `network_mode: host`):
+     ```yaml
+     http:
+       routers:
+         mykids:
+           rule: Host(`mykids.seudominio.com.br`)
+           entryPoints: [https]
+           service: mykids
+           tls: { certResolver: letsencrypt }
+       services:
+         mykids:
+           loadBalancer:
+             servers: [{ url: "http://host.docker.internal:8080" }]
+     ```
+   - **Sem Traefik:** gere o certificado (ex.: `certbot --dns-cloudflare` / `acme.sh`), monte os arquivos no container
+     e defina `TLS_CERT_FILE` e `TLS_KEY_FILE`. O próprio app passa a servir HTTPS na `PORT`, e os cookies
+     ficam seguros automaticamente.
+4. Use `SECURE_COOKIES=true` quando o HTTPS estiver no Traefik.
+
+> Certificado autoassinado **não** serve: o iPhone não instala e o Android mostra alerta.
+
+### Instalar nos celulares
+- **Android (Chrome):** abra o endereço HTTPS; o painel mostra a faixa **"Instale o MyKids Printer" → Instalar**
+  (ou menu ⋮ → *Instalar app*).
+- **iPhone (Safari):** a faixa abre o passo a passo: **Compartilhar → Adicionar à Tela de Início**.
+- O app abre em tela cheia com o ícone da INCC, tem atalhos (Painel, Impressoras, Logs) e mostra
+  "Nova versão disponível → Atualizar" quando houver deploy novo. Sem rede, mostra uma tela própria de "Sem conexão".
 
 ## 4. Primeira configuração (no painel)
 1. Criar o **administrador** (primeiro acesso).

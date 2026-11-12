@@ -43,3 +43,11 @@ CSS reescrito com base no celular (≥ 320px) e ajustes progressivos em 640px (t
 Celular: cabeçalho compacto + menu no avatar, barra de abas inferior com ícones (admin), botões ≥ 48px,
 inputs 16px (sem zoom no iOS), tabelas viram cartões/feeds, formulário de impressora em tela cheia com ações fixas
 no rodapé, filtros recolhíveis, áreas seguras (notch). PWA instalável (manifest, ícones INCC, tema preto).
+
+## ADR-010 · Webapp instalável (PWA) — 2026-11-12
+Requisito: instalar o painel como app no celular. Service worker próprio (`apps/web/public/sw.js`, sem Workbox):
+casca do app em cache (abre rápido e tem tela offline), `/api/*` nunca cacheado. Manifest com ícones any/maskable,
+atalhos e `display: standalone`. Convite "Instalar" via `beforeinstallprompt` (Android/desktop) e passo a passo
+no iPhone (Safari não tem prompt). Faixa de "nova versão → Atualizar" e de "sem conexão".
+Instalação exige HTTPS com certificado válido: recomendado domínio → IP da LAN com Let's Encrypt por DNS-01
+(Traefik do Coolify); alternativa `TLS_CERT_FILE`/`TLS_KEY_FILE` no próprio app.

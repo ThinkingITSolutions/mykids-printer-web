@@ -8,7 +8,25 @@ import { Gileade } from './pages/Gileade';
 import { Users } from './pages/Users';
 import { Logs } from './pages/Logs';
 import { Login, Setup } from './pages/Auth';
+import { AppNotices, InstallBanner, registerServiceWorker } from './pwa';
 import './styles.css';
+
+let applyUpdate: (() => void) | undefined;
+const updateListeners = new Set<() => void>();
+registerServiceWorker((apply) => {
+  applyUpdate = apply;
+  updateListeners.forEach((l) => l());
+});
+
+function useUpdate() {
+  const [, force] = useState(0);
+  useEffect(() => {
+    const l = () => force((n) => n + 1);
+    updateListeners.add(l);
+    return () => void updateListeners.delete(l);
+  }, []);
+  return applyUpdate;
+}
 
 interface Session {
   user: User | null;
@@ -49,6 +67,7 @@ const ADMIN_LINKS = [
 
 function Shell({ children }: { children: ReactNode }) {
   const { user, refresh } = useSession();
+  const update = useUpdate();
   const [menu, setMenu] = useState(false);
   const admin = user?.role === 'admin';
   const roleLabel = admin ? 'Administrador' : 'Operador';
@@ -103,6 +122,8 @@ function Shell({ children }: { children: ReactNode }) {
           )}
         </div>
       </header>
+      <AppNotices update={update} />
+      <InstallBanner />
       {children}
       {admin && (
         <nav className="tabbar" aria-label="Navegação">

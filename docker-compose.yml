@@ -11,6 +11,9 @@ services:
       APP_SECRET: ${APP_SECRET:?defina APP_SECRET}
       # true quando o painel estiver atrás de HTTPS (Coolify com domínio)
       SECURE_COOKIES: ${SECURE_COOKIES:-false}
+      # HTTPS direto (opcional): monte os certificados e aponte os caminhos
+      TLS_CERT_FILE: ${TLS_CERT_FILE:-}
+      TLS_KEY_FILE: ${TLS_KEY_FILE:-}
     volumes:
       - mykids-printer-data:/data
 

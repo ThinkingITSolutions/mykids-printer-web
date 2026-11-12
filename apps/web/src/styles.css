@@ -459,3 +459,36 @@ table.responsive.feed td.event { width: 100%; font-size: 14px; color: var(--text
 @media (min-width: 960px) {
   table.responsive td:last-child { border-bottom: 1px solid var(--line); }
 }
+
+/* ================================================================ webapp instalável */
+.install-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 8px 10px var(--gutter);
+  background: #111;
+  color: #fff;
+  border-bottom: 1px solid #222;
+}
+.install-banner img { width: 40px; height: 40px; border-radius: 8px; flex: none; }
+.install-banner .install-text { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 12px; line-height: 1.35; }
+.install-banner .install-text span { color: #b0b0b0; }
+.install-banner button.primary { min-height: 40px; padding: 8px 16px; }
+.install-banner .install-close { background: none; border: 0; color: #b0b0b0; font-size: 24px; min-width: 40px; min-height: 40px; padding: 0; }
+.install-banner.muted { font-size: 12px; color: #b0b0b0; justify-content: space-between; padding-right: var(--gutter); }
+.install-banner.muted .link { color: #fff; }
+.notice { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px var(--gutter); font-size: 13px; font-weight: 600; }
+.notice.bad { background: var(--red); color: #fff; }
+.notice.info { background: var(--yellow); color: #000; }
+.notice button { min-height: 38px; padding: 6px 14px; }
+.modal.sheet { height: auto; margin-top: auto; border-radius: 12px 12px 0 0; }
+.ios-steps { margin: 0; padding-left: 20px; line-height: 1.7; font-size: 15px; }
+.ios-steps svg { vertical-align: -4px; color: var(--blue); }
+@media (min-width: 640px) {
+  .modal.sheet { margin-top: 0; border-radius: var(--radius); width: min(480px, 100%); }
+  .install-banner { padding-left: var(--gutter); }
+}
+/* instalado (tela cheia): reforça o espaço da barra de status do celular */
+@media (display-mode: standalone) {
+  .topbar { padding-top: max(env(safe-area-inset-top, 0px), 4px); }
+}

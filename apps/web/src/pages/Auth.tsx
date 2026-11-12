@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { api } from '../api';
 import { Brand } from '../main';
+import { InstallBanner } from '../pwa';
 
 function AuthLayout({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
@@ -8,6 +9,7 @@ function AuthLayout({ title, subtitle, children }: { title: string; subtitle: st
       <header className="topbar">
         <Brand />
       </header>
+      <InstallBanner />
       <div>
         <section className="hero" style={{ textAlign: 'center' }}>
           <h1>{title}</h1>

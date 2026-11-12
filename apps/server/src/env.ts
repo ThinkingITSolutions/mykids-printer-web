@@ -29,5 +29,8 @@ export const env = {
   socketUrl: process.env.MYKIDS_SOCKET_URL ?? 'http://printer.appmykids.com.br/',
   templatesBase:
     process.env.TEMPLATES_BASE ?? 'https://s3.sa-east-1.amazonaws.com/web.gileadesistemas.com.br/mykidsprinter/',
-  secureCookies: process.env.SECURE_COOKIES === 'true',
+  /** HTTPS direto no app (opcional): caminhos do certificado e da chave PEM. */
+  tlsCertFile: process.env.TLS_CERT_FILE,
+  tlsKeyFile: process.env.TLS_KEY_FILE,
+  secureCookies: process.env.SECURE_COOKIES === 'true' || !!(process.env.TLS_CERT_FILE && process.env.TLS_KEY_FILE),
 };
